@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Internal", "Internal", "{066547E1-FB5F-465A-98CD-284EA28962F3}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scripts", "Scripts", "{95E180B7-9332-448A-8A50-C0BD9978A5BE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dlls", "Dlls", "{D6B0F089-872E-40AC-9248-F98DA39596C1}"
+	ProjectSection(SolutionItems) = preProject
+		Dlls\AboutThisFolder.md = Dlls\AboutThisFolder.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CompanionFiles", "CompanionFiles", "{5199E313-2CF0-48FD-8839-32F49AFC41AC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Skyline DataMiner", "Skyline DataMiner", "{6E3953B1-945C-48DD-82EA-DE85B1D253F0}"
+	ProjectSection(SolutionItems) = preProject
+		CompanionFiles\Skyline DataMiner\AboutThisFolder.md = CompanionFiles\Skyline DataMiner\AboutThisFolder.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{950B8C27-8D2C-43E2-B4C1-861AF8DAD298}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\AboutThisFolder.md = Documentation\AboutThisFolder.md
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Code Analysis", "Code Analysis", "{9532EDAE-1D38-4E76-AD16-C8153375A06D}"
+	ProjectSection(SolutionItems) = preProject
+		Internal\Code Analysis\qaction-debug.ruleset = Internal\Code Analysis\qaction-debug.ruleset
+		Internal\Code Analysis\qaction-release.ruleset = Internal\Code Analysis\qaction-release.ruleset
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IDP Info", "IDP Info", "{16B82EC8-C3C1-431F-B188-0A63464939E5}"
+	ProjectSection(SolutionItems) = preProject
+		IDP Info.xml = IDP Info.xml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Actions", "Actions", "{12BBA576-3E46-4D33-9BFE-5CA1F150DFD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IDP Info_1", "IDP Info_1\IDP Info_1.csproj", "{4AAC4D32-DD84-4590-BCC0-18804A6CFC87}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4AAC4D32-DD84-4590-BCC0-18804A6CFC87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AAC4D32-DD84-4590-BCC0-18804A6CFC87}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AAC4D32-DD84-4590-BCC0-18804A6CFC87}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AAC4D32-DD84-4590-BCC0-18804A6CFC87}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6E3953B1-945C-48DD-82EA-DE85B1D253F0} = {5199E313-2CF0-48FD-8839-32F49AFC41AC}
+		{9532EDAE-1D38-4E76-AD16-C8153375A06D} = {066547E1-FB5F-465A-98CD-284EA28962F3}
+		{16B82EC8-C3C1-431F-B188-0A63464939E5} = {95E180B7-9332-448A-8A50-C0BD9978A5BE}
+		{12BBA576-3E46-4D33-9BFE-5CA1F150DFD0} = {16B82EC8-C3C1-431F-B188-0A63464939E5}
+		{4AAC4D32-DD84-4590-BCC0-18804A6CFC87} = {12BBA576-3E46-4D33-9BFE-5CA1F150DFD0}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CF5E8C15-DA90-4A8C-BFA6-70ED5C17F3FC}
+	EndGlobalSection
+EndGlobal
