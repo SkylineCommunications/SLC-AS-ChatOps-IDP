@@ -14,6 +14,9 @@
 	</Memory>
 
 	<Parameters>
+		<ScriptParameter id="2" type="string" values="ChatOps_IDP Info_Options">
+			<Description>Request</Description>
+		</ScriptParameter>
 	</Parameters>
 
 	<Script>
