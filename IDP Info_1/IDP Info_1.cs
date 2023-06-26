@@ -179,6 +179,12 @@ namespace IDP_Info_1
 
 			for(int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
 			{
+				// Detect if script outputs doesn't grow too large
+				if(rowIdx >= 100)
+				{
+					break;
+				}
+
 				tableRows.Add(new AdaptiveTableRow
 				{
 					Type = "TableRow",
@@ -345,6 +351,18 @@ namespace IDP_Info_1
 
 			for(int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
 			{
+				// Detect if script outputs doesn't grow too large
+				if(rowIdx >= 100)
+				{
+					break;
+				}
+
+				// Detected IP Address
+				if(String.IsNullOrEmpty(pcem.NewValue.ArrayValue[5].ArrayValue[rowIdx].CellValue.StringValue))
+				{
+					continue;
+				}
+
 				tableRows.Add(new AdaptiveTableRow
 				{
 					Type = "TableRow",
@@ -432,14 +450,208 @@ namespace IDP_Info_1
 				Rows = tableRows,
 			};
 
-			engine.Log("Script is finished.");
-
 			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(new List<AdaptiveElement>{ table }));
 		}
 
 		private void GetNotSoftwareCompliantElements(IEngine engine)
 		{
-			// Do stuff
+			var dms = engine.GetDms();
+			var idpElement = dms.GetElement("DataMiner IDP");
+
+			var gptm = new GetPartialTableMessage
+			{
+				DataMinerID = idpElement.DmsElementId.AgentId,
+				ElementID = idpElement.DmsElementId.ElementId,
+				ParameterID = 1700,
+				Filters = new[] { String.Empty },
+			};
+
+			var pcem = (ParameterChangeEventMessage)Engine.SLNet.SendSingleResponseMessage(gptm);
+
+			var tableRows = new List<AdaptiveTableRow>
+			{
+				new AdaptiveTableRow
+				{
+					Type = "TableRow",
+					Cells = new List<AdaptiveTableCell>
+					{
+						new AdaptiveTableCell
+						{
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock("Status")
+								{
+									Type = "TextBlock",
+									Weight = AdaptiveTextWeight.Bolder,
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock("CI Type")
+								{
+									Type = "TextBlock",
+									Weight = AdaptiveTextWeight.Bolder,
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock("Element Name")
+								{
+									Type = "TextBlock",
+									Weight = AdaptiveTextWeight.Bolder,
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock("IP Address")
+								{
+									Type = "TextBlock",
+									Weight = AdaptiveTextWeight.Bolder,
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock("Detected Software Version")
+								{
+									Type = "TextBlock",
+									Weight = AdaptiveTextWeight.Bolder,
+								},
+							},
+						},
+					},
+				},
+			};
+
+			for(int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
+			{
+				// Check if the output doesn't become too large.
+				if(rowIdx >= 100)
+				{
+					break;
+				}
+
+				tableRows.Add(new AdaptiveTableRow
+				{
+					Type = "TableRow",
+					Cells = new List<AdaptiveTableCell>
+					{
+						new AdaptiveTableCell
+						{
+							// Status
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[1]
+														.ArrayValue[rowIdx].CellValue.StringValue)
+								{
+									Type = "TextBlock",
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							// CI Type
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[2]
+														.ArrayValue[rowIdx].CellValue.StringValue)
+								{
+									Type = "TextBlock",
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							// Element Name
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[3]
+														.ArrayValue[rowIdx].CellValue.StringValue)
+								{
+									Type = "TextBlock",
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							// IP Address
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[4]
+														.ArrayValue[rowIdx].CellValue.StringValue)
+								{
+									Type = "TextBlock",
+								},
+							},
+						},
+						new AdaptiveTableCell
+						{
+							// Detected Software Version
+							Type = "TableCell",
+							Items = new List<AdaptiveElement>
+							{
+								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[7]
+														.ArrayValue[rowIdx].CellValue.StringValue)
+								{
+									Type = "TextBlock",
+								},
+							},
+						},
+					},
+				});
+			}
+
+			var table = new AdaptiveTable
+			{
+				Type = "Table",
+				FirstRowAsHeaders = true,
+				Columns = new List<AdaptiveTableColumnDefinition>
+				{
+					new AdaptiveTableColumnDefinition
+					{
+						Width = 150,
+					},
+					new AdaptiveTableColumnDefinition
+					{
+						Width = 150,
+					},
+					new AdaptiveTableColumnDefinition
+					{
+						Width = 150,
+					},
+					new AdaptiveTableColumnDefinition
+					{
+						Width = 150,
+					},
+					new AdaptiveTableColumnDefinition
+					{
+						Width = 150,
+					},
+				},
+				Rows = tableRows,
+			};
+
+			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(new List<AdaptiveElement>{ table }));
 		}
 	}
 }
