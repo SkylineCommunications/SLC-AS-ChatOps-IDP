@@ -53,7 +53,7 @@ namespace IDP_Info_1
 {
 	using System;
 	using System.Collections.Generic;
-
+	using System.Linq;
 	using AdaptiveCards;
 
 	using Newtonsoft.Json;
@@ -68,6 +68,21 @@ namespace IDP_Info_1
 	/// </summary>
 	public class Script
 	{
+		private enum SoftwareStatus
+		{
+			NotAvailable = -1,
+			Unknown = 0,
+			UpToDate = 1,
+			Running = 2,
+			Outdated = 3,
+		}
+
+		private readonly Dictionary<SoftwareStatus, string> SoftwareStatusIcons = new Dictionary<SoftwareStatus, string>
+		{
+			{ SoftwareStatus.Unknown, "\u2753"}, // Question Mark
+			{ SoftwareStatus.Outdated, "\u274C" }, // Red Cross Mark
+		};
+
 		/// <summary>
 		/// The script entry point.
 		/// </summary>
@@ -101,6 +116,33 @@ namespace IDP_Info_1
 				engine.GenerateInformation(ex.Message);
 				engine.AddScriptOutput("ERROR", ex.Message);
 			}
+		}
+
+		private static string ConvertToString(string value, string exceptionValue)
+		{
+			if (String.IsNullOrEmpty(value))
+			{
+				return "N/A";
+			}
+
+			return value != exceptionValue
+				? value
+				: "N/A";
+		}
+
+		private string ConvertSoftwareStatusToString(SoftwareStatus status)
+		{
+			if (status == SoftwareStatus.NotAvailable)
+			{
+				return "N/A";
+			}
+
+			if (SoftwareStatusIcons.ContainsKey(status))
+			{
+				return SoftwareStatusIcons[status];
+			}
+
+			return status.ToString();
 		}
 
 		private void GetManagedDevices(IEngine engine)
@@ -177,10 +219,10 @@ namespace IDP_Info_1
 				},
 			};
 
-			for(int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
+			for (int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
 			{
 				// Detect if script outputs doesn't grow too large
-				if(rowIdx >= 100)
+				if (rowIdx >= 100)
 				{
 					break;
 				}
@@ -196,8 +238,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[3]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[3].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -209,8 +253,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[0]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[0].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -222,8 +268,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[9]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[9].ArrayValue[rowIdx].CellValue.StringValue,
+										String.Empty))
 								{
 									Type = "TextBlock",
 								},
@@ -235,8 +283,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[10]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[10].ArrayValue[rowIdx].CellValue.StringValue,
+										String.Empty))
 								{
 									Type = "TextBlock",
 								},
@@ -246,33 +296,54 @@ namespace IDP_Info_1
 				});
 			}
 
-			var table = new AdaptiveTable
+			List<AdaptiveElement> scriptOutput = new List<AdaptiveElement>
 			{
-				Type = "Table",
-				FirstRowAsHeaders = true,
-				Columns = new List<AdaptiveTableColumnDefinition>
+				new AdaptiveTextBlock("Managed Devices")
 				{
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
+					Type = "TextBlock",
+					Weight = AdaptiveTextWeight.Bolder,
+					Size = AdaptiveTextSize.Large,
 				},
-				Rows = tableRows,
 			};
+			if (tableRows.Count == 1)
+			{
+				scriptOutput.Add(new AdaptiveTextBlock("There are no managed devices.")
+				{
+					Type = "TextBlock",
+					Weight = AdaptiveTextWeight.Default,
+					Size = AdaptiveTextSize.Default,
+				});
+			}
+			else
+			{
+				scriptOutput.Add(new AdaptiveTable
+				{
+					Type = "Table",
+					FirstRowAsHeaders = true,
+					Columns = new List<AdaptiveTableColumnDefinition>
+					{
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+					},
+					Rows = tableRows,
+				});
+			}
 
-			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(new List<AdaptiveElement>{ table }));
+			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(scriptOutput));
 		}
 
 		private void GetUnManagedDevices(IEngine engine)
@@ -349,16 +420,16 @@ namespace IDP_Info_1
 				},
 			};
 
-			for(int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
+			for (int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
 			{
 				// Detect if script outputs doesn't grow too large
-				if(rowIdx >= 100)
+				if (rowIdx >= 100)
 				{
 					break;
 				}
 
 				// Detected IP Address
-				if(String.IsNullOrEmpty(pcem.NewValue.ArrayValue[5].ArrayValue[rowIdx].CellValue.StringValue))
+				if (String.IsNullOrEmpty(pcem.NewValue.ArrayValue[5].ArrayValue[rowIdx].CellValue.StringValue))
 				{
 					continue;
 				}
@@ -374,8 +445,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[2]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[2].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -387,8 +460,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[0]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[0].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -400,8 +475,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[5]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[5].ArrayValue[rowIdx].CellValue.StringValue,
+										String.Empty))
 								{
 									Type = "TextBlock",
 								},
@@ -413,8 +490,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[3]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[3].ArrayValue[rowIdx].CellValue.StringValue,
+										String.Empty))
 								{
 									Type = "TextBlock",
 								},
@@ -424,33 +503,54 @@ namespace IDP_Info_1
 				});
 			}
 
-			var table = new AdaptiveTable
+			List<AdaptiveElement> scriptOutput = new List<AdaptiveElement>
 			{
-				Type = "Table",
-				FirstRowAsHeaders = true,
-				Columns = new List<AdaptiveTableColumnDefinition>
+				new AdaptiveTextBlock("Unmanaged Devices")
 				{
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
+					Type = "TextBlock",
+					Weight = AdaptiveTextWeight.Bolder,
+					Size = AdaptiveTextSize.Large,
 				},
-				Rows = tableRows,
 			};
+			if (tableRows.Count == 1)
+			{
+				scriptOutput.Add(new AdaptiveTextBlock("There are no unmanaged devices.")
+				{
+					Type = "TextBlock",
+					Weight = AdaptiveTextWeight.Default,
+					Size = AdaptiveTextSize.Default,
+				});
+			}
+			else
+			{
+				scriptOutput.Add(new AdaptiveTable
+				{
+					Type = "Table",
+					FirstRowAsHeaders = true,
+					Columns = new List<AdaptiveTableColumnDefinition>
+					{
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+					},
+					Rows = tableRows,
+				});
+			}
 
-			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(new List<AdaptiveElement>{ table }));
+			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(scriptOutput));
 		}
 
 		private void GetNotSoftwareCompliantElements(IEngine engine)
@@ -539,12 +639,20 @@ namespace IDP_Info_1
 				},
 			};
 
-			for(int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
+			SoftwareStatus status;
+			for (int rowIdx = 0; rowIdx < pcem.NewValue.ArrayValue[0].ArrayValue.Length; rowIdx++)
 			{
 				// Check if the output doesn't become too large.
-				if(rowIdx >= 100)
+				if (rowIdx >= 100)
 				{
 					break;
+				}
+
+				status = (SoftwareStatus)pcem.NewValue.ArrayValue[1].ArrayValue[rowIdx].CellValue.DoubleValue;
+				if (status == SoftwareStatus.Running || status == SoftwareStatus.UpToDate)
+				{
+					// Only the not compliant.
+					continue;
 				}
 
 				tableRows.Add(new AdaptiveTableRow
@@ -558,8 +666,7 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[1]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(ConvertSoftwareStatusToString(status))
 								{
 									Type = "TextBlock",
 								},
@@ -571,8 +678,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[2]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[2].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -584,8 +693,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[3]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[3].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -597,8 +708,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[4]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[4].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -610,8 +723,10 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock(pcem.NewValue.ArrayValue[7]
-														.ArrayValue[rowIdx].CellValue.StringValue)
+								new AdaptiveTextBlock(
+									ConvertToString(
+										pcem.NewValue.ArrayValue[7].ArrayValue[rowIdx].CellValue.StringValue,
+										null))
 								{
 									Type = "TextBlock",
 								},
@@ -621,37 +736,58 @@ namespace IDP_Info_1
 				});
 			}
 
-			var table = new AdaptiveTable
+			List<AdaptiveElement> scriptOutput = new List<AdaptiveElement>
 			{
-				Type = "Table",
-				FirstRowAsHeaders = true,
-				Columns = new List<AdaptiveTableColumnDefinition>
+				new AdaptiveTextBlock("Not Software Compliant Elements")
 				{
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
-					new AdaptiveTableColumnDefinition
-					{
-						Width = 150,
-					},
+					Type = "TextBlock",
+					Weight = AdaptiveTextWeight.Bolder,
+					Size = AdaptiveTextSize.Large,
 				},
-				Rows = tableRows,
 			};
+			if (tableRows.Count == 1)
+			{
+				scriptOutput.Add(new AdaptiveTextBlock("The software of each element is up to date.")
+				{
+					Type = "TextBlock",
+					Weight = AdaptiveTextWeight.Default,
+					Size = AdaptiveTextSize.Default,
+				});
+			}
+			else
+			{
+				scriptOutput.Add(new AdaptiveTable
+				{
+					Type = "Table",
+					FirstRowAsHeaders = true,
+					Columns = new List<AdaptiveTableColumnDefinition>
+					{
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+						new AdaptiveTableColumnDefinition
+						{
+							Width = 150,
+						},
+					},
+					Rows = tableRows,
+				});
+			}
 
-			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(new List<AdaptiveElement>{ table }));
+			engine.AddScriptOutput("AdaptiveCard", JsonConvert.SerializeObject(scriptOutput));
 		}
 	}
 }
