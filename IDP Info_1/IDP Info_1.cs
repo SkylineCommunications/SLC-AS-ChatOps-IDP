@@ -184,18 +184,6 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock("ID")
-								{
-									Type = "TextBlock",
-									Weight = AdaptiveTextWeight.Bolder,
-								},
-							},
-						},
-						new AdaptiveTableCell
-						{
-							Type = "TableCell",
-							Items = new List<AdaptiveElement>
-							{
 								new AdaptiveTextBlock("IP Address")
 								{
 									Type = "TextBlock",
@@ -241,21 +229,6 @@ namespace IDP_Info_1
 								new AdaptiveTextBlock(
 									ConvertToString(
 										pcem.NewValue.ArrayValue[3].ArrayValue[rowIdx].CellValue.StringValue,
-										null))
-								{
-									Type = "TextBlock",
-								},
-							},
-						},
-						new AdaptiveTableCell
-						{
-							// ID
-							Type = "TableCell",
-							Items = new List<AdaptiveElement>
-							{
-								new AdaptiveTextBlock(
-									ConvertToString(
-										pcem.NewValue.ArrayValue[0].ArrayValue[rowIdx].CellValue.StringValue,
 										null))
 								{
 									Type = "TextBlock",
@@ -324,19 +297,15 @@ namespace IDP_Info_1
 					{
 						new AdaptiveTableColumnDefinition
 						{
-							Width = 150,
+							Width = 200,
 						},
 						new AdaptiveTableColumnDefinition
 						{
-							Width = 150,
+							Width = 100,
 						},
 						new AdaptiveTableColumnDefinition
 						{
-							Width = 150,
-						},
-						new AdaptiveTableColumnDefinition
-						{
-							Width = 150,
+							Width = 250,
 						},
 					},
 					Rows = tableRows,
@@ -385,7 +354,7 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock("ID")
+								new AdaptiveTextBlock("IP Address")
 								{
 									Type = "TextBlock",
 									Weight = AdaptiveTextWeight.Bolder,
@@ -397,19 +366,7 @@ namespace IDP_Info_1
 							Type = "TableCell",
 							Items = new List<AdaptiveElement>
 							{
-								new AdaptiveTextBlock("Detected IP Address")
-								{
-									Type = "TextBlock",
-									Weight = AdaptiveTextWeight.Bolder,
-								},
-							},
-						},
-						new AdaptiveTableCell
-						{
-							Type = "TableCell",
-							Items = new List<AdaptiveElement>
-							{
-								new AdaptiveTextBlock("Detected CI Type")
+								new AdaptiveTextBlock("CI Type")
 								{
 									Type = "TextBlock",
 									Weight = AdaptiveTextWeight.Bolder,
@@ -448,21 +405,6 @@ namespace IDP_Info_1
 								new AdaptiveTextBlock(
 									ConvertToString(
 										pcem.NewValue.ArrayValue[2].ArrayValue[rowIdx].CellValue.StringValue,
-										null))
-								{
-									Type = "TextBlock",
-								},
-							},
-						},
-						new AdaptiveTableCell
-						{
-							// ID
-							Type = "TableCell",
-							Items = new List<AdaptiveElement>
-							{
-								new AdaptiveTextBlock(
-									ConvertToString(
-										pcem.NewValue.ArrayValue[0].ArrayValue[rowIdx].CellValue.StringValue,
 										null))
 								{
 									Type = "TextBlock",
@@ -531,19 +473,15 @@ namespace IDP_Info_1
 					{
 						new AdaptiveTableColumnDefinition
 						{
-							Width = 150,
+							Width = 200,
 						},
 						new AdaptiveTableColumnDefinition
 						{
-							Width = 150,
+							Width = 100,
 						},
 						new AdaptiveTableColumnDefinition
 						{
-							Width = 150,
-						},
-						new AdaptiveTableColumnDefinition
-						{
-							Width = 150,
+							Width = 250,
 						},
 					},
 					Rows = tableRows,
